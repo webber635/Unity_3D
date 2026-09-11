@@ -30,8 +30,8 @@ public class VictoryManager : MonoBehaviour
     {
         if (victoryPanel != null) victoryPanel.SetActive(true);
         
-        if (errorText != null) errorText.text = $"Syntax Errors: {totalErrors}";
-        if (warningText != null) warningText.text = $"Logic Warnings: {totalWarnings}";
+        if (errorText != null) errorText.text = $"{totalErrors}";
+        if (warningText != null) warningText.text = $"{totalWarnings}";
         
         Cursor.visible = true;
         Cursor.lockState = CursorLockMode.None;
