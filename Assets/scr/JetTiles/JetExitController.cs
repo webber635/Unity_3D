@@ -84,8 +84,8 @@ public class JetExitController : MonoBehaviour
         }
         else if (currentLevel == LevelIdentifier.Level2)
         {
-            errors = TerminalControllerLevel2.totalErrors;
-            warnings = TerminalControllerLevel2.totalWarnings;
+            errors = TerminalController2.totalErrors;
+            warnings = TerminalController2.totalWarnings;
         }
 
         if (VictoryManager.Instance != null)
