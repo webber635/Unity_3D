@@ -1,22 +1,24 @@
 using UnityEngine;
 using TMPro;
 
-public class TerminalController2 : MonoBehaviour
+public class TerminalController3 : MonoBehaviour
 {
-    [Header("Referensi UI")]
+    [Header("Referensi UI (Wajib diisi)")]
     [SerializeField] private GameObject terminalUI;       
     [SerializeField] private TMP_InputField inputField;   
     [SerializeField] private TextMeshProUGUI feedbackText;
 
-    [Header("Referensi Target")]
-    [SerializeField] private SecuredJetExitController targetJetExit; // Mengarah ke Jet Exit
+    [Header("Referensi Target (Tile Bridge)")]
+    [SerializeField] private TileBridgeController targetBridge; 
 
-    [Header("Aturan Puzzle Level 3")]
-    [SerializeField] private int requiredLevel = 2;
+    [Header("Aturan Puzzle Level 2")]
+    [SerializeField] private int basePower = 20;
+    [SerializeField] private int requiredPower = 50;
 
     private bool isPlayerInRange = false;
     private bool isSolved = false;
 
+    // Statistik untuk Victory Panel
     public static int totalErrors = 0;
     public static int totalWarnings = 0;
 
@@ -37,7 +39,10 @@ public class TerminalController2 : MonoBehaviour
     {
         if (isPlayerInRange && !isSolved && Input.GetKeyDown(KeyCode.E))
         {
-            if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject) return; 
+            if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject)
+            {
+                return; 
+            }
             ToggleTerminal();
         }
     }
@@ -46,7 +51,10 @@ public class TerminalController2 : MonoBehaviour
     {
         if (terminalUI.activeSelf && !isSolved)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) EvaluateAnswer(); 
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
+            {
+                EvaluateAnswer(); 
+            }
         }
     }
 
@@ -54,12 +62,13 @@ public class TerminalController2 : MonoBehaviour
     {
         bool isActive = !terminalUI.activeSelf;
         terminalUI.SetActive(isActive);
-        PlayerGridMovement.isTerminalActive = isActive; // Blokir gerakan player saat ngetik
+        PlayerGridMovement.isTerminalActive = isActive;
 
         if (isActive)
         {
-            inputField.text = "1"; 
-            feedbackText.text = "> Checking access...\nERROR: Access level too low.\nCurrent: 1\nRequired: 2";
+            // Set nilai default awal sesuai rancangan (20)
+            inputField.text = "20"; 
+            feedbackText.text = "> Checking power...\nERROR: Insufficient power for tile levitation.\nPower: 40\nRequired: 50";
             feedbackText.color = Color.yellow;
             inputField.ActivateInputField(); 
             inputField.caretPosition = inputField.text.Length; 
@@ -68,42 +77,52 @@ public class TerminalController2 : MonoBehaviour
 
     public void EvaluateAnswer()
     {
-        if (string.IsNullOrEmpty(inputField.text)) return;
-        string cleanInput = inputField.text.Trim();
+        if (inputField == null) return;
+        EvaluateAnswer(inputField.text); 
+    }
 
-        // 1. CEK SYNTAX
-        if (!int.TryParse(cleanInput, out int accessLevel))
+    public void EvaluateAnswer(string playerInput)
+    {
+        if (string.IsNullOrEmpty(playerInput)) return;
+
+        string cleanInput = playerInput.Trim();
+
+        // 1. CEK SYNTAX: Pastikan input adalah angka (Integer)
+        if (!int.TryParse(cleanInput, out int batteryValue))
         {
             totalErrors++; 
-            OnPuzzleFailed("Syntax Error: 'access_level' must be an integer number.", Color.red);
+            OnPuzzleFailed("Syntax Error: Value 'battery' must be a valid integer number.", Color.red);
             return;
         }
 
-        // 2. CEK LOGIKA LOGICAL (IF)
-        if (accessLevel >= requiredLevel)
+        // 2. CEK LOGIKA: Hitung power + battery
+        int currentPower = basePower + batteryValue;
+
+        if (currentPower >= requiredPower)
         {
-            OnPuzzleSuccess();
+            OnPuzzleSuccess(currentPower);
         }
         else
         {
             totalWarnings++; 
-            OnPuzzleFailed($"> Checking access...\nERROR: Access level too low.\nCurrent: {accessLevel}\nRequired: {requiredLevel}", Color.yellow);
+            OnPuzzleFailed($"> Checking power...\nERROR: Insufficient power for tile levitation.\nPower: {currentPower}\nRequired: {requiredPower}", Color.yellow);
         }
     }
 
-    private void OnPuzzleSuccess()
+    private void OnPuzzleSuccess(int finalPower)
     {
         feedbackText.color = Color.green;
-        feedbackText.text = "> Access granted.\nSecurity: BYPASSED";
+        feedbackText.text = $"> Checking power...\nPower: {finalPower}\nRequired: {requiredPower}\n\nPath: RESTORED";
         isSolved = true;
 
-        PlayerPrefs.SetInt("Level4Unlocked", 1);
+        // Buka akses Level 3 di Main Menu
+        PlayerPrefs.SetInt("Level3Unlocked", 1);
         PlayerPrefs.Save();
 
-        // Buka kunci Jet Exit Tile
-        if (targetJetExit != null)
+        // Jalankan animasi tiles naik
+        if (targetBridge != null)
         {
-            targetJetExit.UnlockExit();
+            targetBridge.RestoreTiles();
         }
 
         Invoke("CloseTerminal", 2.0f); 
@@ -128,7 +147,8 @@ public class TerminalController2 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E] Terminal");
+            if (HUDManager.Instance != null)
+                HUDManager.Instance.ShowHint("Tekan [E] untuk Mengakses Terminal");
         }
     }
 
@@ -138,7 +158,8 @@ public class TerminalController2 : MonoBehaviour
         {
             isPlayerInRange = false;
             if (terminalUI != null) terminalUI.SetActive(false);
-            if (HUDManager.Instance != null) HUDManager.Instance.HideHint();
+            if (HUDManager.Instance != null)
+                HUDManager.Instance.HideHint();
             PlayerGridMovement.isTerminalActive = false; 
         }
     }

@@ -4,16 +4,6 @@ using UnityEngine.SceneManagement;
 
 public class JetExitController : MonoBehaviour
 {
-    // Membuat daftar pilihan level untuk ditampilkan di Inspector
-    public enum LevelIdentifier
-    {
-        Level1,
-        Level2
-    }
-
-    [Header("Identitas Level (Pilih Sesuai Scene!)")]
-    [SerializeField] private LevelIdentifier currentLevel = LevelIdentifier.Level1;
-
     [Header("Pengaturan Jet")]
     [SerializeField] private float warmUpDelay = 1.0f;  
     [SerializeField] private float flySpeed = 5f;       
@@ -26,10 +16,7 @@ public class JetExitController : MonoBehaviour
 
     void Start()
     {
-        if (jetFireEffect != null)
-        {
-            jetFireEffect.SetActive(false);
-        }
+        if (jetFireEffect != null) jetFireEffect.SetActive(false);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -48,22 +35,17 @@ public class JetExitController : MonoBehaviour
 
     IEnumerator JetSequenceRoutine(Transform player)
     {
-        // --- TAHAP 1: WARM-UP ---
-        Debug.Log("Mesin jet menyala... bersiap akselerasi!");
-        
+        // TAHAP 1: WARM-UP
         if (jetFireEffect != null) jetFireEffect.SetActive(true);
-
         yield return new WaitForSeconds(warmUpDelay);
 
-        // --- TAHAP 2: MENGIKAT PLAYER ---
-        Vector3 oldLocalPos = player.localPosition;
+        // TAHAP 2: MENGIKAT PLAYER
         player.SetParent(transform);
-        
         Vector3 fixedPos = player.localPosition;
         fixedPos.y = 0.7f; 
         player.localPosition = fixedPos;
 
-        // --- TAHAP 3: TERBANG ---
+        // TAHAP 3: TERBANG
         float timer = 0f;
         while (timer < flyDuration)
         {
@@ -72,29 +54,10 @@ public class JetExitController : MonoBehaviour
             yield return null;
         }
 
-        // --- TAHAP 4: MUNCULKAN PANEL KEMENANGAN DINAMIS ---
-        int errors = 0;
-        int warnings = 0;
-
-        // Ambil data skor berdasarkan settingan dropdown di Inspector
-        if (currentLevel == LevelIdentifier.Level1)
-        {
-            errors = TerminalController1.totalErrors;
-            warnings = TerminalController1.totalWarnings;
-        }
-        else if (currentLevel == LevelIdentifier.Level2)
-        {
-            errors = TerminalController2.totalErrors;
-            warnings = TerminalController2.totalWarnings;
-        }
-
+        // TAHAP 4: TAMPILKAN PANEL KEMENANGAN DARI LEVEL STATS GLOBAL
         if (VictoryManager.Instance != null)
         {
-            VictoryManager.Instance.ShowVictoryPanel(errors, warnings);
-        }
-        else
-        {
-            Debug.LogError("VictoryManager tidak ditemukan di scene!");
+            VictoryManager.Instance.ShowVictoryPanel(LevelStats.totalErrors, LevelStats.totalWarnings);
         }
     }
 }
