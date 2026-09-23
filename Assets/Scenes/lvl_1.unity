@@ -4983,7 +4983,7 @@ MonoBehaviour:
   inputField: {fileID: 1019977158}
   feedbackText: {fileID: 229858003}
   targetLaser: {fileID: 2119473375}
-  expectedAnswer: false
+  expectedStatus: false
 --- !u!65 &1070955906
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -9255,8 +9255,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fdddb3e5efbced9418061f03ed706309, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  laserVisual: {fileID: 0}
-  laserCollider: {fileID: 0}
+  laserRenderers:
+  - {fileID: 2119473373}
+  - {fileID: 1498852374}
+  hazardCollider: {fileID: 2119473372}
+  blinkCount: 4
+  blinkDuration: 2
 --- !u!1001 &2145733485
 PrefabInstance:
   m_ObjectHideFlags: 0

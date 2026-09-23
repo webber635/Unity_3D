@@ -174,4 +174,14 @@ public class PlayerGridMovement : MonoBehaviour
 
         Debug.Log("Player terkena laser! Kembali ke posisi awal.");
     }
+
+    // Tambahkan fungsi ini untuk memperbarui titik respawn
+    public void SetNewCheckpoint(Vector3 newPosition)
+    {
+        // Ganti "startPosition" dengan nama variabel yang Anda gunakan di script ini
+        // untuk menyimpan koordinat respawn pemain.
+        respawnPosition = newPosition;
+
+        Debug.Log("Checkpoint baru telah diset di: " + newPosition);
+    }
 }

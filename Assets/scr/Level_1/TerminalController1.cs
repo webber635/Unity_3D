@@ -3,61 +3,40 @@ using TMPro;
 
 public class TerminalController1 : MonoBehaviour
 {
-    [Header("Referensi UI (Wajib diisi)")]
-    [SerializeField] private GameObject terminalUI;       
-    [SerializeField] private TMP_InputField inputField;   
+    [Header("Referensi UI")]
+    [SerializeField] private GameObject terminalUI;
+    [SerializeField] private TMP_InputField inputField;
     [SerializeField] private TextMeshProUGUI feedbackText;
 
-    [Header("Referensi Target (Laser/Pintu)")]
-    [SerializeField] private LaserController targetLaser; 
+    [Header("Referensi Target (Laser)")]
+    [SerializeField] private LaserController targetLaser;
 
     [Header("Aturan Puzzle")]
-    [SerializeField] private string expectedAnswer = "false"; 
+    [SerializeField] private string expectedStatus = "false";
 
     private bool isPlayerInRange = false;
     private bool isSolved = false;
 
-    // ==========================================
-    // TAMBAHAN SISTEM SKOR / STATISTIK
-    // ==========================================
-    public static int totalErrors = 0;
-    public static int totalWarnings = 0;
+    // CACHE MOVEMENT
+    private PlayerGridMovement playerMovement;
 
     void Start()
     {
         if (terminalUI != null) terminalUI.SetActive(false);
-        
-        // Reset skor setiap kali level dimulai ulang
-        totalErrors = 0;
-        totalWarnings = 0;
+        LevelStats.ResetStats();
     }
 
     void Update()
     {
-        HandlePlayerInteraction();
-        HandleTerminalInput();
-    }
-
-    private void HandlePlayerInteraction()
-    {
         if (isPlayerInRange && !isSolved && Input.GetKeyDown(KeyCode.E))
         {
-            if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject)
-            {
-                return; 
-            }
+            if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject) return;
             ToggleTerminal();
         }
-    }
 
-    private void HandleTerminalInput()
-    {
         if (terminalUI.activeSelf && !isSolved)
         {
-            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter))
-            {
-                EvaluateAnswer(); 
-            }
+            if (Input.GetKeyDown(KeyCode.Return) || Input.GetKeyDown(KeyCode.KeypadEnter)) EvaluateAnswer();
         }
     }
 
@@ -69,78 +48,88 @@ public class TerminalController1 : MonoBehaviour
 
         if (isActive)
         {
-            inputField.text = "true"; 
-            feedbackText.text = "Status: Locked. Change variable to deactive laser.";
-            feedbackText.color = Color.white;
-            inputField.ActivateInputField(); 
-            inputField.caretPosition = inputField.text.Length; 
+            inputField.text = "true";
+            feedbackText.text = "> Security_mode: ON\nWARNING: Laser is active.";
+            feedbackText.color = Color.yellow;
         }
     }
 
     public void EvaluateAnswer()
     {
-        if (inputField == null) return;
-        EvaluateAnswer(inputField.text); 
-    }
+        if (string.IsNullOrEmpty(inputField.text)) return;
+        string cleanInput = inputField.text.Trim().ToLower();
 
-    public void EvaluateAnswer(string playerInput)
-    {
-        if (string.IsNullOrEmpty(playerInput)) return;
-
-        string cleanInput = playerInput.Trim().ToLower();
-
-        // 1. CEK SYNTAX (Mendeteksi Typo / Invalid value)
         if (cleanInput != "true" && cleanInput != "false")
         {
-            totalErrors++; // Menambahkan skor Error
-            OnPuzzleFailed("Syntax Error: Value must be 'true' or 'false'.", Color.red);
+            LevelStats.totalErrors++;
+            OnPuzzleFailed("Syntax Error: Value must be 'True' or 'False'.", Color.red);
             return;
         }
 
-        // 2. CEK LOGIKA JAWABAN
-        if (cleanInput == expectedAnswer)
+        if (cleanInput == expectedStatus) // (Sesuaikan dengan nama variabel expected jawaban Anda)
         {
             OnPuzzleSuccess();
         }
         else
         {
-            totalWarnings++; // Menambahkan skor Warning
-            OnPuzzleFailed("Logic Warning: Laser is still active.", Color.yellow);
+            LevelStats.totalWarnings++;
+            OnPuzzleFailed("> Security_mode: ON\nWARNING: Laser is still active.", Color.yellow);
         }
     }
 
     private void OnPuzzleSuccess()
     {
         feedbackText.color = Color.green;
-        feedbackText.text = "Success: Laser Deactivated!";
+        feedbackText.text = "> Security_mode: OFF\nLaser deactivation sequence initiated...";
         isSolved = true;
 
-        // Buka akses Level 2 di Main Menu
         PlayerPrefs.SetInt("Level2Unlocked", 1);
         PlayerPrefs.Save();
 
-        if (targetLaser != null)
-        {
-            targetLaser.TurnOffLaser();
-        }
-
-        // Cukup tutup terminal, karena Jet yang akan memanggil Victory Panel
-        Invoke("CloseTerminal", 1.5f); 
+        // TUNGGU 1.5 DETIK AGAR PEMAIN BISA MEMBACA TEKS HIJAU
+        Invoke("ExecuteCinematic", 1.5f);
     }
 
-    // Fungsi gagal sekarang menerima warna agar bisa dibedakan (Merah/Kuning)
+    // ====== FUNGSI CINEMATIC BARU ======
+    private void ExecuteCinematic()
+    {
+        // 1. Bersihkan layar dari UI
+        if (terminalUI != null) terminalUI.SetActive(false);
+
+        // 2. Kunci gerakan agar pemain terdiam menonton adegan
+        if (playerMovement != null) playerMovement.enabled = false;
+
+        // 3. Mulai animasi kedip laser
+        if (targetLaser != null) targetLaser.TurnOffLaser();
+
+        // 4. Jeda selama laser berkedip 
+        StartCoroutine(WaitAndUnlockPlayer(2f));
+    }
+
+    private System.Collections.IEnumerator WaitAndUnlockPlayer(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (playerMovement != null) playerMovement.enabled = true;
+        PlayerGridMovement.isTerminalActive = false; // Lepas flag global
+    }
+    // ===================================
+
     private void OnPuzzleFailed(string message, Color textColor)
     {
         feedbackText.color = textColor;
         feedbackText.text = message;
-        inputField.text = ""; 
-        inputField.ActivateInputField();
+        inputField.text = "";
     }
 
     public void CloseTerminal()
     {
+        // Fungsi ini sekarang hanya digunakan jika pemain menekan tombol Close manual (X)
         if (terminalUI != null) terminalUI.SetActive(false);
-        PlayerGridMovement.isTerminalActive = false; 
+        if (playerMovement != null && playerMovement.enabled)
+        {
+            PlayerGridMovement.isTerminalActive = false;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -148,8 +137,11 @@ public class TerminalController1 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (HUDManager.Instance != null)
-                HUDManager.Instance.ShowHint("Tekan [E] untuk Mengakses Terminal");
+
+            // CACHE SCRIPT MOVEMENT SAAT MASUK ZONA
+            playerMovement = other.GetComponent<PlayerGridMovement>();
+
+            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E] Terminal");
         }
     }
 
@@ -159,14 +151,8 @@ public class TerminalController1 : MonoBehaviour
         {
             isPlayerInRange = false;
             if (terminalUI != null) terminalUI.SetActive(false);
-            if (HUDManager.Instance != null)
-                HUDManager.Instance.HideHint();
-            PlayerGridMovement.isTerminalActive = false; 
+            if (HUDManager.Instance != null) HUDManager.Instance.HideHint();
+            PlayerGridMovement.isTerminalActive = false;
         }
-    }
-
-    public bool IsTerminalOpen()
-    {
-        return terminalUI != null && terminalUI.activeSelf;
     }
 }
