@@ -4,12 +4,26 @@ using UnityEngine.SceneManagement;
 
 public class LevelSelectManager : MonoBehaviour
 {
-    [Header("Referensi Tombol Level")]
-    [SerializeField] private Button btnLevel1;
-    [SerializeField] private Button btnLevel2;
+    [Header("Pengaturan Level")]
+    [Tooltip("Masukkan ke-7 tombol level berurutan")]
+    [SerializeField] private Button[] levelButtons;
     
-    [Header("Indikator Visual Terkunci (Opsional)")]
-    [SerializeField] private GameObject lockIconLevel2; // Icon gembok atau overlay abu-abu
+    [Tooltip("Masukkan Image panel hitam yang menutupi level berurutan")]
+    [SerializeField] private GameObject[] darkOverlays;
+
+    [Header("Pengaturan Scene")]
+    [SerializeField] private string scenePrefix = "lvl_";
+
+    [Header("Debug")]
+    [SerializeField] private bool autoResetOnStart = false;
+
+    private void Awake()
+    {
+        if (autoResetOnStart)
+        {
+            ResetAllProgress();
+        }
+    }
 
     void Start()
     {
@@ -18,39 +32,45 @@ public class LevelSelectManager : MonoBehaviour
 
     public void CheckLevelUnlockStatus()
     {
-        // Cek apakah PlayerPrefs "Level2Unlocked" bernilai 1 (artinya Level 1 sudah selesai)
-        int isLevel2Unlocked = PlayerPrefs.GetInt("Level2Unlocked", 0);
+        for (int i = 0; i < levelButtons.Length; i++)
+        {
+            int levelNumber = i + 1; 
+            
+            // Level 1 selalu terbuka, sisanya baca dari PlayerPrefs
+            bool isUnlocked = (levelNumber == 1) || (PlayerPrefs.GetInt("Level" + levelNumber + "Unlocked", 0) == 1);
+            
+            // 1. Terapkan ke interaksi tombol
+            if (levelButtons[i] != null) 
+            {
+                levelButtons[i].interactable = isUnlocked;
+            }
 
-        if (isLevel2Unlocked == 1)
-        {
-            // Buka kunci Level 2
-            btnLevel2.interactable = true;
-            if (lockIconLevel2 != null) lockIconLevel2.SetActive(false); // Sembunyikan gembok/abu-abu
-        }
-        else
-        {
-            // Kunci Level 2 (Abu-abu / Tidak bisa diklik)
-            btnLevel2.interactable = false;
-            if (lockIconLevel2 != null) lockIconLevel2.SetActive(true); // Tampilkan gembok/abu-abu
+            // 2. Terapkan ke panel gelap (Muncul jika terkunci, Hilang jika terbuka)
+            if (i < darkOverlays.Length && darkOverlays[i] != null)
+            {
+                darkOverlays[i].SetActive(!isUnlocked);
+            }
         }
     }
 
-    // Fungsi untuk tombol-tombol level
-    public void LoadLevel1()
+    public void LoadLevel(int levelNumber)
     {
-        SceneManager.LoadScene("lvl_1"); // Sesuaikan nama scene Level 1 kamu
+        if (levelNumber == 1 || PlayerPrefs.GetInt("Level" + levelNumber + "Unlocked", 0) == 1)
+        {
+            SceneManager.LoadScene(scenePrefix + levelNumber);
+        }
     }
 
-    public void LoadLevel2()
+    [ContextMenu("🔴 RESET ALL PROGRESS")]
+    public void ResetAllProgress()
     {
-        // Pengaman ekstra: Pastikan hanya bisa dimuat jika sudah terbuka
-        if (PlayerPrefs.GetInt("Level2Unlocked", 0) == 1)
+        PlayerPrefs.DeleteAll();
+        PlayerPrefs.Save();
+        Debug.Log("⚠️ WARNING: Seluruh data PlayerPrefs telah di-reset!");
+
+        if (Application.isPlaying)
         {
-            SceneManager.LoadScene("lvl_2"); // Sesuaikan nama scene Level 2 kamu
-        }
-        else
-        {
-            Debug.Log("Level 2 masih terkunci!");
+            CheckLevelUnlockStatus();
         }
     }
 }

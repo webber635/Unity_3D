@@ -16,7 +16,6 @@ public class FlashdiskItem : MonoBehaviour
         if (taskManager != null)
         {
             taskManager.AddTextFile(fileName, fileContent);
-            HUDManager.Instance.ShowHint($"Flashdisk diambil! Tekan [TAB] untuk membaca {fileName}");
             Destroy(gameObject);
         }
     }

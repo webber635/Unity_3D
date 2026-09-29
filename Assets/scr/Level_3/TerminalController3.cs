@@ -21,6 +21,7 @@ public class TerminalController3 : MonoBehaviour
     // Statistik untuk Victory Panel
     public static int totalErrors = 0;
     public static int totalWarnings = 0;
+    private PlayerGridMovement playerMovement;
 
     void Start()
     {
@@ -37,6 +38,12 @@ public class TerminalController3 : MonoBehaviour
 
     private void HandlePlayerInteraction()
     {
+        // --- TAMBAHAN BARU: Cegah akses jika robot sedang dibekukan oleh cinematic ---
+        if (playerMovement != null && !playerMovement.enabled) 
+        {
+            return; 
+        }
+
         if (isPlayerInRange && !isSolved && Input.GetKeyDown(KeyCode.E))
         {
             if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject)
@@ -66,6 +73,11 @@ public class TerminalController3 : MonoBehaviour
 
         if (isActive)
         {
+            if (UISoundManager.Instance != null)
+                {
+                    UISoundManager.Instance.PlayTerminalOpen();
+                }            
+
             // Set nilai default awal sesuai rancangan (20)
             inputField.text = "20"; 
             feedbackText.text = "> Checking power...\nERROR: Insufficient power for tile levitation.\nPower: 40\nRequired: 50";
@@ -115,17 +127,37 @@ public class TerminalController3 : MonoBehaviour
         feedbackText.text = $"> Checking power...\nPower: {finalPower}\nRequired: {requiredPower}\n\nPath: RESTORED";
         isSolved = true;
 
-        // Buka akses Level 3 di Main Menu
-        PlayerPrefs.SetInt("Level3Unlocked", 1);
+        PlayerPrefs.SetInt("Level4Unlocked", 1);
         PlayerPrefs.Save();
 
-        // Jalankan animasi tiles naik
+        // Tunda 1.5 detik agar pemain dapat membaca terminal
+        Invoke("ExecuteCinematic", 1.5f); 
+    }
+
+    private void ExecuteCinematic()
+    {
+        // 1. Bersihkan UI terminal dari layar
+        if (terminalUI != null) terminalUI.SetActive(false);
+
+        // 2. Kunci gerakan player untuk menonton jembatan naik
+        if (playerMovement != null) playerMovement.enabled = false;
+
+        // 3. Panggil animasi jembatan naik
         if (targetBridge != null)
         {
             targetBridge.RestoreTiles();
         }
 
-        Invoke("CloseTerminal", 2.0f); 
+        // 4. Jeda selama durasi jembatan cascade (3 detik untuk amannya)
+        StartCoroutine(WaitAndUnlockPlayer(3.0f));
+    }
+
+    private System.Collections.IEnumerator WaitAndUnlockPlayer(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (playerMovement != null) playerMovement.enabled = true;
+        PlayerGridMovement.isTerminalActive = false; // Lepaskan pembatas global
     }
 
     private void OnPuzzleFailed(string message, Color textColor)
@@ -147,8 +179,12 @@ public class TerminalController3 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (HUDManager.Instance != null)
-                HUDManager.Instance.ShowHint("Tekan [E] untuk Mengakses Terminal");
+            
+            // Cache pergerakan pemain (jangan dihapus)
+            playerMovement = other.GetComponent<PlayerGridMovement>(); 
+            
+            // --- UBAH: Kirim teks "Tekan [E]" beserta transform terminal ini ---
+            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E]", transform);
         }
     }
 

@@ -18,16 +18,18 @@ public class TileBridgeController : MonoBehaviour
 
     private Vector3[] targetPositions; 
     private Vector3[] startPositions;  
-
     private bool isRestored = false;
+    
+    // --- TAMBAHAN VARIABEL ---
+    private bool hasDropped = false;
+    private PlayerGridMovement playerMovement;
+    private Vector3 playerInitialPosition;
+    private bool isReadyToCheck = false; // Penanda Jet Entrance sudah selesai
 
     void Start()
     {
-        // 1. Pastikan blocker aktif di awal saat jembatan putus
-        if (invisibleBlocker != null)
-        {
-            invisibleBlocker.SetActive(true);
-        }
+        // Blocker dinonaktifkan di awal karena jembatan masih utuh
+        if (invisibleBlocker != null) invisibleBlocker.SetActive(false);
 
         targetPositions = new Vector3[tilesToRestore.Length];
         startPositions = new Vector3[tilesToRestore.Length];
@@ -36,16 +38,92 @@ public class TileBridgeController : MonoBehaviour
         {
             if (tilesToRestore[i] != null)
             {
-                // Simpan posisi target (posisi sejajar grid saat ini)
                 targetPositions[i] = tilesToRestore[i].position;
-                
-                // Tentukan posisi awal (jatuh ke bawah)
                 startPositions[i] = targetPositions[i] - new Vector3(0, dropDistance, 0);
                 
-                // Pindahkan tile ke posisi jatuh saat game dimulai
-                tilesToRestore[i].position = startPositions[i];
+                // BIARKAN POSISI TILE TETAP DI ATAS SAAT START
             }
         }
+
+        // Cari player, tapi jangan catat posisinya dulu
+        playerMovement = FindFirstObjectByType<PlayerGridMovement>();
+    }
+
+    void Update()
+    {
+        if (hasDropped || playerMovement == null) return;
+
+        // 1. Tunggu animasi Jet Entrance selesai
+        if (!isReadyToCheck)
+        {
+            // JetEntranceController akan meng-enable movement saat mendarat
+            if (playerMovement.enabled) 
+            {
+                // Baru catat posisi asli di atas grid
+                playerInitialPosition = playerMovement.transform.position;
+                isReadyToCheck = true;
+            }
+            return;
+        }
+
+        // 2. Cek pergerakan hanya di sumbu X dan Z (Abaikan perubahan tinggi / Y)
+        Vector3 currentPos = playerMovement.transform.position;
+        float distance = Vector2.Distance(
+            new Vector2(currentPos.x, currentPos.z), 
+            new Vector2(playerInitialPosition.x, playerInitialPosition.z)
+        );
+
+        if (distance > 0.1f)
+        {
+            hasDropped = true;
+            StartCoroutine(CascadeDropRoutine());
+        }
+    }
+
+    private IEnumerator CascadeDropRoutine()
+    {
+        // 1. Matikan input player, tapi JANGAN hentikan Coroutines.
+        // Dengan begini, animasi lompatan langkah pertama player akan tetap 
+        // diselesaikan dengan mulus sebelum dia terdiam menunggu tiles jatuh.
+        if (playerMovement != null) playerMovement.enabled = false;
+
+        // 2. Aktifkan blocker agar player tertahan di tepi
+        if (invisibleBlocker != null) invisibleBlocker.SetActive(true);
+
+        // 3. Jalankan animasi jatuh berurutan
+        for (int i = 0; i < tilesToRestore.Length; i++)
+        {
+            if (tilesToRestore[i] != null)
+            {
+                StartCoroutine(DropSingleTileRoutine(i));
+                yield return new WaitForSeconds(cascadeDelay);
+            }
+        }
+
+        // Tunggu hingga tile terakhir selesai jatuh
+        yield return new WaitForSeconds(riseDuration); 
+
+        // 4. Buka kembali kunci gerakan player
+        if (playerMovement != null) playerMovement.enabled = true;
+    }
+
+    private IEnumerator DropSingleTileRoutine(int index)
+    {
+        float timer = 0f;
+        Transform tile = tilesToRestore[index];
+
+        while (timer < riseDuration)
+        {
+            timer += Time.deltaTime;
+            float progress = Mathf.SmoothStep(0f, 1f, timer / riseDuration);
+            
+            if (tile != null) 
+                tile.position = Vector3.Lerp(targetPositions[index], startPositions[index], progress);
+            
+            yield return null;
+        }
+
+        if (tile != null) tile.position = startPositions[index];
     }
 
     public void RestoreTiles()

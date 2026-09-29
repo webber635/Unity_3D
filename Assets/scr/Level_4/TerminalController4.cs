@@ -3,26 +3,28 @@ using TMPro;
 
 public class TerminalController4 : MonoBehaviour
 {
-    [Header("Referensi UI (Wajib diisi)")]
+    [Header("Referensi UI (Dua Input)")]
     [SerializeField] private GameObject terminalUI;       
-    [SerializeField] private TMP_InputField inputField;   
+    [SerializeField] private TMP_InputField energyInput;   // Gantikan inputField lama
+    [SerializeField] private TMP_InputField securityInput; // InputField kedua
     [SerializeField] private TextMeshProUGUI feedbackText;
 
     [Header("Referensi Target (Laser)")]
     [SerializeField] private LaserController targetLaser; 
 
     [Header("Aturan Puzzle Level 4")]
-    [SerializeField] private int currentEnergy = 60;
+    [Tooltip("Ubah di sini untuk expected answer")]
     [SerializeField] private int requiredEnergy = 50;
     [SerializeField] private string expectedSecurityStatus = "false"; 
 
     private bool isPlayerInRange = false;
     private bool isSolved = false;
+    private PlayerGridMovement playerMovement; // Cache movement untuk cinematic
 
     void Start()
     {
         if (terminalUI != null) terminalUI.SetActive(false);
-        LevelStats.ResetStats(); // Menggunakan sistem statis yang baru
+        LevelStats.ResetStats(); 
     }
 
     void Update()
@@ -35,7 +37,10 @@ public class TerminalController4 : MonoBehaviour
     {
         if (isPlayerInRange && !isSolved && Input.GetKeyDown(KeyCode.E))
         {
-            if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject)
+            // Cek agar tidak toggle saat sedang mengetik di salah satu input
+            if (terminalUI.activeSelf && 
+               (UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == energyInput.gameObject ||
+                UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == securityInput.gameObject))
             {
                 return; 
             }
@@ -58,12 +63,18 @@ public class TerminalController4 : MonoBehaviour
     {
         bool isActive = !terminalUI.activeSelf;
         terminalUI.SetActive(isActive);
-        PlayerGridMovement.isTerminalActive = isActive; // Blokir gerakan player[cite: 5]
+        PlayerGridMovement.isTerminalActive = isActive; 
 
         if (isActive)
         {
-            // Set nilai default awal ke "True" sesuai rancangan puzzle
-            inputField.text = "true"; 
+            if (UISoundManager.Instance != null)
+                {
+                    UISoundManager.Instance.PlayTerminalOpen();
+                }
+
+            // Set nilai default awal di kedua slot
+            energyInput.text = "60"; 
+            securityInput.text = "true"; 
             feedbackText.text = "> Disabling laser...\nERROR: Security mode is active.\nEnergy: 60\nRequired: 50\nSecurity: ON";
             feedbackText.color = Color.yellow;
         }
@@ -71,46 +82,43 @@ public class TerminalController4 : MonoBehaviour
 
     public void EvaluateAnswer()
     {
-        if (inputField == null) return;
-        EvaluateAnswer(inputField.text); 
-    }
+        if (string.IsNullOrEmpty(energyInput.text) || string.IsNullOrEmpty(securityInput.text)) return;
 
-    public void EvaluateAnswer(string playerInput)
-    {
-        if (string.IsNullOrEmpty(playerInput)) return;
+        string cleanEnergy = energyInput.text.Trim();
+        string cleanSecurity = securityInput.text.Trim().ToLower();
 
-        string cleanInput = playerInput.Trim().ToLower();
+        // 1. CEK SYNTAX
+        if (!int.TryParse(cleanEnergy, out int currentEnergy))
+        {
+            LevelStats.totalErrors++; 
+            OnPuzzleFailed("Syntax Error: 'energy' value must be a valid integer number.", Color.red);
+            return;
+        }
 
-        // 1. CEK SYNTAX: Memastikan input adalah boolean yang valid
-        if (cleanInput != "true" && cleanInput != "false")
+        if (cleanSecurity != "true" && cleanSecurity != "false")
         {
             LevelStats.totalErrors++; 
             OnPuzzleFailed("Syntax Error: 'security_mode' value must be 'True' or 'False'.", Color.red);
             return;
         }
 
-        // 2. CEK LOGIKA: IF (energy >= 50 AND security_mode == false)
+        // 2. CEK LOGIKA: IF (energy >= requiredEnergy AND security_mode == expectedSecurityStatus)
         bool isEnergySufficient = currentEnergy >= requiredEnergy;
-        bool isSecurityDisabled = (cleanInput == expectedSecurityStatus);
+        bool isSecurityDisabled = (cleanSecurity == expectedSecurityStatus);
 
         if (isEnergySufficient && isSecurityDisabled)
         {
             OnPuzzleSuccess();
         }
-        else
+        else if (isEnergySufficient ^ isSecurityDisabled) // XOR: Jika HANYA SALAH SATU yang benar
+        {
+            LevelStats.totalWarnings++;
+            OnPuzzleFailed("> Disabling laser...\nERROR: Conditions not met.", Color.yellow);
+        }
+        else // Jika KEDUANYA salah (Feedback dipertahankan mirip sebelumnya dengan sedikit konteks tambahan)
         {
             LevelStats.totalWarnings++; 
-            
-            // Memberikan pesan error spesifik jika energi yang kurang (meskipun di level ini energi sudah di-hardcode cukup)
-            if (!isEnergySufficient)
-            {
-                OnPuzzleFailed($"> Disabling laser...\nERROR: Insufficient Energy.\nEnergy: {currentEnergy}\nRequired: {requiredEnergy}", Color.yellow);
-            }
-            // Memberikan pesan error jika security masih menyala
-            else if (!isSecurityDisabled)
-            {
-                OnPuzzleFailed("> Disabling laser...\nERROR: Security mode is active.\nEnergy: 60\nRequired: 50\nSecurity: ON", Color.yellow);
-            }
+            OnPuzzleFailed($"> Disabling laser...\nERROR: Insufficient Energy AND Security mode is active.\nEnergy: {currentEnergy}\nRequired: {requiredEnergy}\nSecurity: ON", Color.yellow);
         }
     }
 
@@ -120,24 +128,42 @@ public class TerminalController4 : MonoBehaviour
         feedbackText.text = "> Conditions satisfied.\nLaser: OFF";
         isSolved = true;
 
-        // Buka akses Level 5 di Main Menu
         PlayerPrefs.SetInt("Level5Unlocked", 1);
         PlayerPrefs.Save();
 
-        // Matikan Laser
-        if (targetLaser != null)
-        {
-            targetLaser.TurnOffLaser(); // Memanggil fungsi dari LaserController.cs
-        }
-
-        Invoke("CloseTerminal", 2.0f); 
+        // Jeda untuk membaca terminal sebelum cinematic
+        Invoke("ExecuteCinematic", 1.5f); 
     }
+
+    // ====== FUNGSI CINEMATIC (Disamakan dengan Level 1) ======
+    private void ExecuteCinematic()
+    {
+        // 1. Bersihkan layar dari UI
+        if (terminalUI != null) terminalUI.SetActive(false);
+
+        // 2. Kunci gerakan agar pemain terdiam menonton adegan
+        if (playerMovement != null) playerMovement.enabled = false;
+
+        // 3. Mulai animasi kedip laser mati
+        if (targetLaser != null) targetLaser.TurnOffLaser();
+
+        // 4. Jeda selama laser berkedip (2 detik)
+        StartCoroutine(WaitAndUnlockPlayer(2f));
+    }
+
+    private System.Collections.IEnumerator WaitAndUnlockPlayer(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (playerMovement != null) playerMovement.enabled = true;
+        PlayerGridMovement.isTerminalActive = false; // Lepas flag global
+    }
+    // =========================================================
 
     private void OnPuzzleFailed(string message, Color textColor)
     {
         feedbackText.color = textColor;
         feedbackText.text = message;
-        inputField.text = ""; 
     }
 
     public void CloseTerminal()
@@ -151,8 +177,12 @@ public class TerminalController4 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (HUDManager.Instance != null)
-                HUDManager.Instance.ShowHint("Tekan [E] untuk Mengakses Terminal");
+            
+            // Cache pergerakan pemain (jangan dihapus)
+            playerMovement = other.GetComponent<PlayerGridMovement>(); 
+            
+            // --- UBAH: Kirim teks "Tekan [E]" beserta transform terminal ini ---
+            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E]", transform);
         }
     }
 
@@ -162,8 +192,7 @@ public class TerminalController4 : MonoBehaviour
         {
             isPlayerInRange = false;
             if (terminalUI != null) terminalUI.SetActive(false);
-            if (HUDManager.Instance != null)
-                HUDManager.Instance.HideHint();
+            if (HUDManager.Instance != null) HUDManager.Instance.HideHint();
             PlayerGridMovement.isTerminalActive = false; 
         }
     }

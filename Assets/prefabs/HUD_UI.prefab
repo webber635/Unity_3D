@@ -85,7 +85,7 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
-  m_PresetInfoIsWorld: 1
+  m_PresetInfoIsWorld: 0
 --- !u!114 &8424127830555658162
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -115,8 +115,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3d93a61c098e7bf4090c8fc7aa49e488, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  target: {fileID: 0}
-  offset: {x: 0, y: 2.2, z: 0}
+  offset: {x: 0, y: 1, z: 0}
 --- !u!1 &3708965390710409365
 GameObject:
   m_ObjectHideFlags: 0
@@ -154,8 +153,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -0.0024414062, y: 0.00091552734}
-  m_SizeDelta: {x: 250, y: 0}
+  m_AnchoredPosition: {x: 0, y: 0}
+  m_SizeDelta: {x: 180, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &7290706099270299905
 CanvasRenderer:
@@ -300,7 +299,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: eeeeeeeeeeeee
+  m_text: Tekan [E]
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: b96e56d57db58e241ad3ce1ea4dbb3ea, type: 2}
   m_sharedMaterial: {fileID: 2100000, guid: f97406c184121814291d57e94ee6e649, type: 2}

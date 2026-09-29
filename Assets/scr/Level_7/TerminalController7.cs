@@ -2,7 +2,7 @@ using UnityEngine;
 using TMPro;
 using System.Text;
 
-public class TerminalControllerLevel7 : MonoBehaviour
+public class TerminalController7 : MonoBehaviour
 {
     [Header("Referensi UI (Dua Input)")]
     [SerializeField] private GameObject terminalUI;
@@ -51,6 +51,9 @@ public class TerminalControllerLevel7 : MonoBehaviour
 
     void Update()
     {
+        // Cegah akses terminal saat robot dibekukan oleh cinematic
+        if (playerMovement != null && !playerMovement.enabled) return;
+
         if (isPlayerInRange && Input.GetKeyDown(KeyCode.E))
         {
             if (terminalUI.activeSelf &&
@@ -76,6 +79,10 @@ public class TerminalControllerLevel7 : MonoBehaviour
 
         if (isTerminalOpen)
         {
+            if (UISoundManager.Instance != null)
+            {
+                UISoundManager.Instance.PlayTerminalOpen();
+            }
             // Atur mana yang berkedip sesuai fasenya
             UpdateHighlighters();
 
@@ -139,14 +146,8 @@ public class TerminalControllerLevel7 : MonoBehaviour
                 feedbackText.color = Color.cyan;
                 feedbackText.text = outputMsg.ToString();
 
-                // --- KUNCI PEMAIN AGAR TIDAK BISA BERGERAK SELAMA LIFT NAIK ---
-                if (playerMovement != null) playerMovement.enabled = false;
-
-                Invoke("CloseTerminal", 1.5f);
-                if (targetElevator != null)
-                {
-                    targetElevator.StartElevation(loopsValue, playerTransform, OnElevatorFinished);
-                }
+                // Panggil Cinematic Fase 1
+                StartCoroutine(ExecutePhase1Cinematic(loopsValue));
             }
             else
             {
@@ -165,9 +166,8 @@ public class TerminalControllerLevel7 : MonoBehaviour
                 feedbackText.color = Color.green;
                 feedbackText.text = "> Security: BYPASSED\nLaser: OFF\n\nAll systems cleared. You may proceed.";
 
-                if (targetLaser != null) targetLaser.TurnOffLaser();
-
-                Invoke("CloseTerminal", 2.0f);
+                // Panggil Cinematic Fase 2
+                StartCoroutine(ExecutePhase2Cinematic());
             }
             else
             {
@@ -175,6 +175,43 @@ public class TerminalControllerLevel7 : MonoBehaviour
                 OnPuzzleFailed("> SYSTEM STATUS...\nPlatform: ELEVATED\nLaser: ACTIVE\n\nERROR: Security protocol is still active.", Color.yellow);
             }
         }
+    }
+
+    // ====== FUNGSI CINEMATIC FASE 1 (LIFT) ======
+    private System.Collections.IEnumerator ExecutePhase1Cinematic(int loopsValue)
+    {
+        // 1. Kunci pemain dan beri waktu untuk membaca teks terminal
+        if (playerMovement != null) playerMovement.enabled = false;
+        yield return new WaitForSeconds(1.5f);
+
+        // 2. Tutup UI Terminal
+        if (terminalUI != null) terminalUI.SetActive(false);
+
+        // 3. Panggil lift (Fungsi OnElevatorFinished bawaan script akan membuka kunci pemain di akhir)
+        if (targetElevator != null)
+        {
+            targetElevator.StartElevation(loopsValue, playerTransform, OnElevatorFinished);
+        }
+    }
+
+    // ====== FUNGSI CINEMATIC FASE 2 (LASER) ======
+    private System.Collections.IEnumerator ExecutePhase2Cinematic()
+    {
+        // 1. Kunci pemain dan beri waktu untuk membaca teks terminal
+        if (playerMovement != null) playerMovement.enabled = false;
+        yield return new WaitForSeconds(1.5f);
+
+        // 2. Tutup UI Terminal
+        if (terminalUI != null) terminalUI.SetActive(false);
+
+        // 3. Matikan laser (berkedip)
+        if (targetLaser != null) targetLaser.TurnOffLaser();
+
+        // 4. Jeda selama durasi laser berkedip (2 detik) lalu buka kontrol
+        yield return new WaitForSeconds(2.0f);
+
+        if (playerMovement != null) playerMovement.enabled = true;
+        PlayerGridMovement.isTerminalActive = false; // Lepas flag global
     }
 
     private void OnElevatorFinished()
@@ -221,12 +258,12 @@ public class TerminalControllerLevel7 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            playerTransform = other.transform;
-
-            // Cache script movement pemain saat masuk zona terminal
-            playerMovement = playerTransform.GetComponent<PlayerGridMovement>();
-
-            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E] Mengakses Terminal");
+            
+            // Cache pergerakan pemain (jangan dihapus)
+            playerMovement = other.GetComponent<PlayerGridMovement>(); 
+            
+            // --- UBAH: Kirim teks "Tekan [E]" beserta transform terminal ini ---
+            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E]", transform);
         }
     }
 

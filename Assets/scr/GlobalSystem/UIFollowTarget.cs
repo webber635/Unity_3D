@@ -3,29 +3,38 @@ using UnityEngine;
 public class UIFollowTarget : MonoBehaviour
 {
     [Header("Pengaturan Target")]
-    [SerializeField] private Transform target; // Masukkan objek Player/Robot ke sini
-    [SerializeField] private Vector3 offset = new Vector3(0, 2.2f, 0); // Jarak tinggi dari player
-
-    private Quaternion fixedRotation;
+    [SerializeField] private Vector3 offset = new Vector3(0, 2.2f, 0); // Atur tinggi dari terminal
+    
+    private Transform currentTarget;
+    private Camera mainCamera;
 
     void Start()
     {
-        // Kunci rotasi agar statis menghadap kamera isometrik sejak awal
-        if (Camera.main != null)
-        {
-            fixedRotation = Camera.main.transform.rotation;
-        }
+        mainCamera = Camera.main;
+    }
+
+    // --- FUNGSI BARU: Untuk menerima target dinamis (Terminal) ---
+    public void SetTarget(Transform newTarget)
+    {
+        currentTarget = newTarget;
     }
 
     void LateUpdate()
     {
-        if (target != null)
+        // 1. Ikuti posisi target (Terminal)
+        if (currentTarget != null)
         {
-            // 1. Hanya update pergerakan koordinat (Posisi)
-            transform.position = target.position + offset;
+            transform.position = currentTarget.position + offset;
+        }
 
-            // 2. Pastikan rotasi tidak berubah (Statis)
-            transform.rotation = fixedRotation;
+        // 2. Selalu menghadap ke kamera (Billboard effect)
+        if (mainCamera != null)
+        {
+            transform.rotation = mainCamera.transform.rotation;
+        }
+        else
+        {
+            mainCamera = Camera.main;
         }
     }
 }

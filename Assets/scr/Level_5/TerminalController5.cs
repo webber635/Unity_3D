@@ -16,6 +16,7 @@ public class TerminalController5 : MonoBehaviour
 
     private bool isPlayerInRange = false;
     private bool isSolved = false;
+    private PlayerGridMovement playerMovement;
 
     void Start()
     {
@@ -31,9 +32,18 @@ public class TerminalController5 : MonoBehaviour
 
     private void HandlePlayerInteraction()
     {
+        // --- TAMBAHAN BARU: Cegah akses jika robot sedang dibekukan oleh cinematic ---
+        if (playerMovement != null && !playerMovement.enabled) 
+        {
+            return; 
+        }
+
         if (isPlayerInRange && !isSolved && Input.GetKeyDown(KeyCode.E))
         {
-            if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject) return; 
+            if (terminalUI.activeSelf && UnityEngine.EventSystems.EventSystem.current.currentSelectedGameObject == inputField.gameObject)
+            {
+                return; 
+            }
             ToggleTerminal();
         }
     }
@@ -54,6 +64,11 @@ public class TerminalController5 : MonoBehaviour
 
         if (isActive)
         {
+            if (UISoundManager.Instance != null)
+                {
+                    UISoundManager.Instance.PlayTerminalOpen();
+                }
+
             // Nilai awal berbahaya
             inputField.text = "80"; 
             feedbackText.text = "> Checking path...\nTemperature: 80°C\nWARNING: Path temperature critical.\nPath: HOT";
@@ -96,14 +111,36 @@ public class TerminalController5 : MonoBehaviour
         PlayerPrefs.SetInt("Level6Unlocked", 1);
         PlayerPrefs.Save();
 
-        // Mendinginkan jalur
+        // Jeda membaca 1.5 detik
+        Invoke("ExecuteCinematic", 1.5f); 
+    }
+
+    // ====== FUNGSI CINEMATIC BARU ======
+    private void ExecuteCinematic()
+    {
+        if (terminalUI != null) terminalUI.SetActive(false);
+
+        // Kunci pemain agar diam menonton jalur mendingin
+        if (playerMovement != null) playerMovement.enabled = false;
+
+        // Panggil fungsi mendingin yang baru kita buat
         if (targetPath != null)
         {
-            targetPath.SetPathSafe();
+            targetPath.SetPathSafeCinematic();
         }
 
-        Invoke("CloseTerminal", 2.0f); 
+        // Tunggu 1.5 detik (sesuai durasi transisi warna) sebelum bisa jalan lagi
+        StartCoroutine(WaitAndUnlockPlayer(1.5f));
     }
+
+    private System.Collections.IEnumerator WaitAndUnlockPlayer(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (playerMovement != null) playerMovement.enabled = true;
+        PlayerGridMovement.isTerminalActive = false; // Lepas flag global
+    }
+    // ===================================
 
     private void OnPuzzleFailed(string message, Color textColor)
     {
@@ -123,7 +160,12 @@ public class TerminalController5 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E] Terminal");
+            
+            // Cache pergerakan pemain (jangan dihapus)
+            playerMovement = other.GetComponent<PlayerGridMovement>(); 
+            
+            // --- UBAH: Kirim teks "Tekan [E]" beserta transform terminal ini ---
+            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E]", transform);
         }
     }
 

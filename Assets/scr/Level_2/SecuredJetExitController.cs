@@ -2,8 +2,16 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.SceneManagement;
 
+
+
 public class SecuredJetExitController : MonoBehaviour
 {
+    [Header("Pengaturan Warna Tile")]
+    [SerializeField] private Color lockedColor = Color.yellow;
+    [SerializeField] private Color unlockedColor = Color.green;
+    [SerializeField] private int blinkCount = 4;
+    [SerializeField] private float blinkDuration = 1f;
+
     public enum LevelIdentifier
     {
         Level1,
@@ -33,7 +41,11 @@ public class SecuredJetExitController : MonoBehaviour
     void Start()
     {
         if (jetFireEffect != null) jetFireEffect.SetActive(false);
-        if (tileRenderer != null) originalColor = tileRenderer.material.color;
+        if (tileRenderer != null)
+        {
+            originalColor = lockedColor; // Kunci warna asli menjadi kuning
+            tileRenderer.material.color = lockedColor;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -91,8 +103,27 @@ public class SecuredJetExitController : MonoBehaviour
     public void UnlockExit()
     {
         isLocked = false;
-        // Opsional: Beri warna hijau pudar atau biarkan kembali ke warna asli sebagai tanda terbuka
-        if (tileRenderer != null) tileRenderer.material.color = originalColor;
+        StartCoroutine(UnlockCinematicRoutine());
+    }
+
+    private IEnumerator UnlockCinematicRoutine()
+    {
+        if (tileRenderer != null)
+        {
+            float timePerBlink = blinkDuration / (blinkCount * 2);
+
+            for (int i = 0; i < blinkCount; i++)
+            {
+                tileRenderer.material.color = unlockedColor; // Nyala hijau
+                yield return new WaitForSeconds(timePerBlink);
+                tileRenderer.material.color = lockedColor;   // Kembali kuning
+                yield return new WaitForSeconds(timePerBlink);
+            }
+
+            // Hasil akhir dikunci di warna hijau
+            tileRenderer.material.color = unlockedColor;
+        }
+        
         Debug.Log("Security Bypass: Jet Exit Terbuka!");
     }
 

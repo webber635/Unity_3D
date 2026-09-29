@@ -19,20 +19,96 @@ public class MovingIslandController : MonoBehaviour
 
     private Vector3 initialPosition;
 
+    [Header("Pengaturan Jebakan")]
+    [Tooltip("Berapa petak pulau mundur saat pemain melangkah")]
+    [SerializeField] private int trapSteps = 3;
+
+    private Vector3 connectedPosition;
+    private Vector3 disconnectedPosition;
+    
+    // --- Variabel Deteksi Pemain ---
+    private bool hasTriggeredTrap = false;
+    private PlayerGridMovement playerMovement;
+    private Vector3 playerInitialPosition;
+    private bool isReadyToCheck = false;
+
     void Start()
     {
         if (islandTransform != null)
         {
-            initialPosition = islandTransform.position;
+            connectedPosition = islandTransform.position; // Posisi di Editor (menyatu)
+            
+            // Hitung posisi menjauh (berlawanan arah dengan moveDirection)
+            disconnectedPosition = connectedPosition - (moveDirection.normalized * gridSize * trapSteps);
         }
 
-        if (invisibleBlocker != null)
+        // Blocker mati di awal karena jembatan menyatu
+        if (invisibleBlocker != null) invisibleBlocker.SetActive(false);
+
+        playerMovement = FindFirstObjectByType<PlayerGridMovement>();
+    }
+
+    void Update()
+    {
+        if (hasTriggeredTrap || playerMovement == null) return;
+
+        // 1. Tunggu Jet Entrance selesai
+        if (!isReadyToCheck)
         {
-            invisibleBlocker.SetActive(true);
+            if (playerMovement.enabled) 
+            {
+                playerInitialPosition = playerMovement.transform.position;
+                isReadyToCheck = true;
+            }
+            return;
+        }
+
+        // 2. Cek pergerakan sumbu X dan Z
+        Vector3 currentPos = playerMovement.transform.position;
+        float distance = Vector2.Distance(
+            new Vector2(currentPos.x, currentPos.z), 
+            new Vector2(playerInitialPosition.x, playerInitialPosition.z)
+        );
+
+        if (distance > 0.1f)
+        {
+            hasTriggeredTrap = true;
+            StartCoroutine(TrapSequenceRoutine());
         }
     }
 
-    // Dipanggil oleh Terminal setelah pemain mengeksekusi kode
+    private IEnumerator TrapSequenceRoutine()
+    {
+        // Kunci input agar tidak bisa jalan, tapi biarkan lompatan pertama selesai
+        if (playerMovement != null) playerMovement.enabled = false;
+        
+        // Aktifkan blocker agar player tertahan di tepi
+        if (invisibleBlocker != null) invisibleBlocker.SetActive(true);
+
+        // Animasi pulau mundur (menjauh)
+        for (int i = 0; i < trapSteps; i++)
+        {
+            Vector3 startPos = islandTransform.position;
+            Vector3 targetPos = startPos - (moveDirection.normalized * gridSize);
+            
+            float timer = 0f;
+            while (timer < stepDuration)
+            {
+                timer += Time.deltaTime;
+                float progress = Mathf.SmoothStep(0f, 1f, timer / stepDuration);
+                islandTransform.position = Vector3.Lerp(startPos, targetPos, progress);
+                yield return null;
+            }
+            islandTransform.position = targetPos;
+            yield return new WaitForSeconds(delayBetweenSteps);
+        }
+
+        if (playerMovement != null) playerMovement.enabled = true;
+    }
+
+    // ... (kode Update dan TrapSequenceRoutine di atasnya) ...
+
+    // FUNGSI INI YANG HILANG DAN HARUS DITAMBAHKAN KEMBALI
     public void StartMovingSequence(int steps, bool isSuccess)
     {
         StartCoroutine(MoveRoutine(steps, isSuccess));
@@ -40,19 +116,15 @@ public class MovingIslandController : MonoBehaviour
 
     private IEnumerator MoveRoutine(int steps, bool isSuccess)
     {
-        // 1. Reset posisi ke awal dan aktifkan blocker (jika pemain mencoba ulang / revisi kode)
-        if (islandTransform != null) islandTransform.position = initialPosition;
+        // Selalu mulai dari posisi terputus saat mengeksekusi terminal
+        if (islandTransform != null) islandTransform.position = disconnectedPosition;
         if (invisibleBlocker != null) invisibleBlocker.SetActive(true);
 
-        // 2. Batasi maksimal animasi langkah agar bongkahan tidak terbang keluar map jika pemain input angka 1000
-        int maxAnimSteps = Mathf.Min(steps, 4); 
+        int maxAnimSteps = Mathf.Min(steps, trapSteps + 1); 
 
-        // 3. Loop pergerakan sesuai jumlah iterasi
         for (int i = 0; i < maxAnimSteps; i++)
         {
             Vector3 startPos = islandTransform.position;
-            
-            // Hitung posisi target untuk maju 1 petak sesuai arah
             Vector3 targetPos = startPos + (moveDirection.normalized * gridSize);
             
             float timer = 0f;
@@ -65,12 +137,9 @@ public class MovingIslandController : MonoBehaviour
             }
             
             islandTransform.position = targetPos;
-            
-            // Jeda sejenak sebelum langkah loop berikutnya
             yield return new WaitForSeconds(delayBetweenSteps);
         }
 
-        // 4. Jika logika kodenya benar (power mencapai target), buka jalan
         if (isSuccess)
         {
             if (invisibleBlocker != null) invisibleBlocker.SetActive(false);

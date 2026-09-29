@@ -5,7 +5,8 @@ public class PauseManager : MonoBehaviour
 {
     [Header("Referensi UI")]
     [SerializeField] private GameObject pausePanel;
-    [SerializeField] private GameObject pauseButton; // << TAMBAHKAN REFERENSI TOMBOL INI
+    [SerializeField] private GameObject pauseButton; 
+    [SerializeField] private GameObject inventoryButton; 
     [SerializeField] private string mainMenuSceneName = "MainMenu";
 
     public static bool isPaused = false; 
@@ -22,6 +23,11 @@ public class PauseManager : MonoBehaviour
         if (pauseButton != null)
         {
             pauseButton.SetActive(!isPaused && !PlayerGridMovement.isTerminalActive && !TaskManagerUI.isTaskManagerActive);
+        }
+
+        if (inventoryButton != null)
+        {
+            inventoryButton.SetActive(!isPaused && !PlayerGridMovement.isTerminalActive && !TaskManagerUI.isTaskManagerActive);
         }
 
         // 2. KONTROL TOMBOL ESCAPE

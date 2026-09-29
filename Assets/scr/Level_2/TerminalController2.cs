@@ -14,6 +14,7 @@ public class TerminalController2 : MonoBehaviour
     [Header("Aturan Puzzle Level 3")]
     [SerializeField] private int requiredLevel = 2;
 
+    private PlayerGridMovement playerMovement;
     private bool isPlayerInRange = false;
     private bool isSolved = false;
 
@@ -58,6 +59,11 @@ public class TerminalController2 : MonoBehaviour
 
         if (isActive)
         {
+            if (UISoundManager.Instance != null)
+                {
+                    UISoundManager.Instance.PlayTerminalOpen();
+                }
+
             inputField.text = "1"; 
             feedbackText.text = "> Checking access...\nERROR: Access level too low.\nCurrent: 1\nRequired: 2";
             feedbackText.color = Color.yellow;
@@ -97,16 +103,34 @@ public class TerminalController2 : MonoBehaviour
         feedbackText.text = "> Access granted.\nSecurity: BYPASSED";
         isSolved = true;
 
-        PlayerPrefs.SetInt("Level4Unlocked", 1);
+        PlayerPrefs.SetInt("Level3Unlocked", 1);
         PlayerPrefs.Save();
 
-        // Buka kunci Jet Exit Tile
-        if (targetJetExit != null)
-        {
-            targetJetExit.UnlockExit();
-        }
+        // Tunda 1.5 detik agar pemain sempat membaca teks hijau terminal
+        Invoke("ExecuteCinematic", 1.5f);
+    }
 
-        Invoke("CloseTerminal", 2.0f); 
+    private void ExecuteCinematic()
+    {
+        // 1. Bersihkan layar dari UI Terminal
+        if (terminalUI != null) terminalUI.SetActive(false);
+
+        // 2. Kunci gerakan agar pemain terdiam menonton tile
+        if (playerMovement != null) playerMovement.enabled = false;
+
+        // 3. Panggil animasi kedip hijau di Jet Exit
+        if (targetJetExit != null) targetJetExit.UnlockExit();
+
+        // 4. Jeda selama durasi tile berkedip (2 detik) sebelum bisa jalan lagi
+        StartCoroutine(WaitAndUnlockPlayer(2f));
+    }
+
+    private System.Collections.IEnumerator WaitAndUnlockPlayer(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+
+        if (playerMovement != null) playerMovement.enabled = true;
+        PlayerGridMovement.isTerminalActive = false; // Lepaskan flag blokir global
     }
 
     private void OnPuzzleFailed(string message, Color textColor)
@@ -128,7 +152,12 @@ public class TerminalController2 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E] Terminal");
+            
+            // Cache pergerakan pemain (jangan dihapus)
+            playerMovement = other.GetComponent<PlayerGridMovement>(); 
+            
+            // --- UBAH: Kirim teks "Tekan [E]" beserta transform terminal ini ---
+            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E]", transform);
         }
     }
 

@@ -48,6 +48,11 @@ public class TerminalController1 : MonoBehaviour
 
         if (isActive)
         {
+            if (UISoundManager.Instance != null)
+            {
+                UISoundManager.Instance.PlayTerminalOpen();
+            }
+
             inputField.text = "true";
             feedbackText.text = "> Security_mode: ON\nWARNING: Laser is active.";
             feedbackText.color = Color.yellow;
@@ -137,11 +142,12 @@ public class TerminalController1 : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             isPlayerInRange = true;
-
-            // CACHE SCRIPT MOVEMENT SAAT MASUK ZONA
-            playerMovement = other.GetComponent<PlayerGridMovement>();
-
-            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E] Terminal");
+            
+            // Cache pergerakan pemain (jangan dihapus)
+            playerMovement = other.GetComponent<PlayerGridMovement>(); 
+            
+            // --- UBAH: Kirim teks "Tekan [E]" beserta transform terminal ini ---
+            if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E]", transform);
         }
     }
 

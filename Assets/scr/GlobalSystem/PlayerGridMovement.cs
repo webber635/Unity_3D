@@ -16,6 +16,14 @@ public class PlayerGridMovement : MonoBehaviour
     [SerializeField] private float hopHeight = 0.4f; 
     [SerializeField] private float tiltAngle = 15f;  
 
+    [Header("Pengaturan Audio Langkah")]
+    [Tooltip("Tarik komponen AudioSource dari player ke sini")]
+    [SerializeField] private AudioSource sfxSource; 
+    [Tooltip("Masukkan 4 file suara langkah secara berurutan di sini")]
+    [SerializeField] private AudioClip[] landSounds; // Diubah menjadi Array
+
+    private int soundIndex = 0; // Untuk melacak giliran suara
+
     private bool isMoving = false;
 
     private Vector3 respawnPosition; // Menyimpan titik awal spawn
@@ -104,6 +112,8 @@ public class PlayerGridMovement : MonoBehaviour
             visualBody.localRotation = Quaternion.Euler(0, 0, 0);
         }
         
+        PlayStepSound(); // Panggil suara bergiliran
+        
         isMoving = false;
     }
 
@@ -143,7 +153,6 @@ public class PlayerGridMovement : MonoBehaviour
         }
 
         // --- PENGUNCIAN MUTLAK ---
-        // Pastikan posisi dikembalikan PERSIS ke angka awal tanpa ada desimal yang melenceng
         transform.position = startPosition;
         
         if (visualBody != null)
@@ -151,7 +160,26 @@ public class PlayerGridMovement : MonoBehaviour
             visualBody.localRotation = Quaternion.Euler(0, 0, 0);
         }
 
+        PlayStepSound(); // Panggil suara bergiliran saat nabrak tembok juga
+
         isMoving = false;
+    }
+
+    private void PlayStepSound()
+    {
+        if (sfxSource != null && landSounds != null && landSounds.Length > 0)
+        {
+            // Ambil suara sesuai indeks saat ini
+            AudioClip clipToPlay = landSounds[soundIndex];
+            
+            if (clipToPlay != null)
+            {
+                sfxSource.PlayOneShot(clipToPlay);
+            }
+
+            // Pindah ke indeks berikutnya, lalu putar ulang ke 0 jika sudah mencapai ujung array (0-3)
+            soundIndex = (soundIndex + 1) % landSounds.Length;
+        }
     }
 
     private void OnTriggerEnter(Collider other)
