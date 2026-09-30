@@ -306,6 +306,81 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 152250809}
   m_CullTransparentMesh: 1
+--- !u!1 &185690276
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 185690277}
+  - component: {fileID: 185690279}
+  - component: {fileID: 185690278}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &185690277
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 185690276}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 970127400}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 545.55554, y: 156.66664}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &185690278
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 185690276}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: e0ee6aba6e8c3be45bf96f28f5a9bedc, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &185690279
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 185690276}
+  m_CullTransparentMesh: 1
 --- !u!1 &199392633
 GameObject:
   m_ObjectHideFlags: 0
@@ -1336,7 +1411,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &599457902
 RectTransform:
   m_ObjectHideFlags: 0
@@ -2461,7 +2536,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -3011,6 +3086,8 @@ RectTransform:
   - {fileID: 1202418281}
   - {fileID: 418457773}
   - {fileID: 1033174253}
+  - {fileID: 1190250468}
+  - {fileID: 185690277}
   m_Father: {fileID: 599457902}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
@@ -3376,6 +3453,7 @@ GameObject:
   - component: {fileID: 1059056814}
   - component: {fileID: 1059056813}
   - component: {fileID: 1059056816}
+  - component: {fileID: 1059056817}
   m_Layer: 5
   m_Name: ButtonSound
   m_TagString: Untagged
@@ -3445,19 +3523,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1059056814}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1571053566}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: ToggleSound
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1059056814
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -3508,6 +3574,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0c43a617451fb42ad67b9cf1166c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1059056817
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1059056811}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa7b4ae31d23f114ea9d216b2376b4c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonType: 0
+  iconOn: {fileID: 21300000, guid: 787a0cdc7cb3d0640996ec9b3dcc5d63, type: 3}
+  iconOff: {fileID: 21300000, guid: 175341f8df9ddb54e81376d41ee17184, type: 3}
 --- !u!1 &1067544315
 GameObject:
   m_ObjectHideFlags: 0
@@ -3684,7 +3765,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -4031,6 +4112,81 @@ RectTransform:
   m_AnchoredPosition: {x: 0, y: 0}
   m_SizeDelta: {x: -20, y: -20}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!1 &1190250467
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1190250468}
+  - component: {fileID: 1190250470}
+  - component: {fileID: 1190250469}
+  m_Layer: 5
+  m_Name: Image (1)
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1190250468
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190250467}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 3}
+  m_ConstrainProportionsScale: 1
+  m_Children: []
+  m_Father: {fileID: 970127400}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 545.5556, y: -198.88889}
+  m_SizeDelta: {x: 100, y: 100}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1190250469
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190250467}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: 5fe3aa3345f58f447be21ab4bb5b6b69, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1190250470
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1190250467}
+  m_CullTransparentMesh: 1
 --- !u!1 &1202418280
 GameObject:
   m_ObjectHideFlags: 0
@@ -4913,6 +5069,7 @@ GameObject:
   - component: {fileID: 1418841719}
   - component: {fileID: 1418841718}
   - component: {fileID: 1418841721}
+  - component: {fileID: 1418841722}
   m_Layer: 5
   m_Name: ButtonSong
   m_TagString: Untagged
@@ -4982,19 +5139,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1418841719}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 1571053566}
-        m_TargetAssemblyTypeName: AudioManager, Assembly-CSharp
-        m_MethodName: ToggleMusic
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1418841719
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -5045,6 +5190,21 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0c43a617451fb42ad67b9cf1166c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &1418841722
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1418841716}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: aa7b4ae31d23f114ea9d216b2376b4c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  buttonType: 1
+  iconOn: {fileID: 21300000, guid: 0ab61111aae65a84aa8dd1f0fae798c3, type: 3}
+  iconOff: {fileID: 21300000, guid: c4ca1b9e875b4bd4eb9d3ef131f59001, type: 3}
 --- !u!1 &1453904835
 GameObject:
   m_ObjectHideFlags: 0
@@ -5284,6 +5444,7 @@ RectTransform:
   m_LocalScale: {x: 0, y: 0, z: 0}
   m_ConstrainProportionsScale: 0
   m_Children:
+  - {fileID: 1917898024}
   - {fileID: 793227374}
   - {fileID: 1222179935}
   - {fileID: 599457902}
@@ -5441,6 +5602,7 @@ GameObject:
   - component: {fileID: 1537817819}
   - component: {fileID: 1537817818}
   - component: {fileID: 1537817817}
+  - component: {fileID: 1537817820}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -5466,7 +5628,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 1
-  m_BackGroundColor: {r: 0.19215687, g: 0.3019608, b: 0.4745098, a: 0}
+  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 1}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -5522,6 +5684,50 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1537817820
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1537817816}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a79441f348de89743a2939f4d699eac1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_RenderShadows: 1
+  m_RequiresDepthTextureOption: 2
+  m_RequiresOpaqueTextureOption: 2
+  m_CameraType: 0
+  m_Cameras: []
+  m_RendererIndex: -1
+  m_VolumeLayerMask:
+    serializedVersion: 2
+    m_Bits: 1
+  m_VolumeTrigger: {fileID: 0}
+  m_VolumeFrameworkUpdateModeOption: 2
+  m_RenderPostProcessing: 0
+  m_Antialiasing: 0
+  m_AntialiasingQuality: 2
+  m_StopNaN: 0
+  m_Dithering: 0
+  m_ClearDepth: 1
+  m_AllowXRRendering: 1
+  m_AllowHDROutput: 1
+  m_UseScreenCoordOverride: 0
+  m_ScreenSizeOverride: {x: 0, y: 0, z: 0, w: 0}
+  m_ScreenCoordScaleBias: {x: 0, y: 0, z: 0, w: 0}
+  m_RequiresDepthTexture: 0
+  m_RequiresColorTexture: 0
+  m_Version: 2
+  m_TaaSettings:
+    m_Quality: 3
+    m_FrameInfluence: 0.1
+    m_JitterScale: 1
+    m_MipBias: 0
+    m_VarianceClampScale: 0.9
+    m_ContrastAdaptiveSharpening: 0
 --- !u!1 &1571053565
 GameObject:
   m_ObjectHideFlags: 0
@@ -5939,7 +6145,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
   m_AnchoredPosition: {x: 497.4696, y: -1050}
-  m_SizeDelta: {x: 994.9392, y: 2100}
+  m_SizeDelta: {x: 994.9392, y: 2250}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1721315767
 MonoBehaviour:
@@ -5961,28 +6167,77 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "1. \U0001F579\uFE0FCara Bermain (Controls)\nPergerakan Robot: Gunakan
-    tombol W, A, S, D atau Tombol Panah (Arrow Keys) untuk berjalan di atas petak
-    grid.\n\nAkses Terminal: Dekati komputer terminal di setiap level, lalu tekan
-    [E] untuk mulai memasukkan kode perbaikan.\n\nTask Manager & Flashdisk: Tekan
-    [TAB] untuk membuka inventaris/Task Manager guna membaca file petunjuk (.txt)
-    yang kamu temukan di dalam game.\n\nPeringatan Bahaya: Hindari rintangan seperti
-    laser aktif atau jalur panas (Hot Path) agar robot tidak hancur dan kembali ke
-    checkpoint.\n\n2.\U0001F4BB Kamus Coding (Cheat Sheet)\nPanduan singkat sintaks
-    untuk menyelesaikan teka-teki di terminal:\n\nBoolean (true / false):\n\nDigunakan
-    untuk menyalakan atau mematikan sistem keamanan/laser.\n\nCatatan: Ketik menggunakan
-    huruf kecil semua (true atau false).\n\nAngka Bulat (int):\n\nDigunakan untuk
-    mengatur nilai energi, temperatur, atau level akses (contoh: 50, 80).\n\nKondisi
-    Logika (if / else):\n\nSistem akan mengecek apakah nilai yang kamu masukkan sudah
-    memenuhi batas minimal (threshold atau required power).\n\nPerulangan (for loop):\n\nDigunakan
-    untuk mengeksekusi perintah berulang (seperti elevasi lift atau daya dorong platform)
-    berdasarkan jumlah iterasi/angka yang kamu masukkan.\n\n3. Tentang Misi:\nSistem
-    fasilitas lab dan jalur evakuasi mengalami error dan terkunci. Tugasmu adalah
-    memprogram ulang terminal-terminal di setiap sektor agar robot bisa mengaktifkan
-    Jet Exit dan keluar dengan selamat."
+  m_text: '1. Cara Bermain (Controls)
+
+    Pergerakan Robot: Gunakan tombol W, A,
+    S, D atau Tombol Panah (Arrow Keys) untuk berjalan di atas petak grid.
+
+
+    Akses
+    Terminal: Dekati komputer terminal di setiap level, lalu tekan [E] untuk mulai
+    memasukkan kode perbaikan.
+
+
+    Task Manager & Flashdisk: Tekan [TAB] untuk
+    membuka inventaris/Task Manager guna membaca file petunjuk (.txt) yang kamu temukan
+    di dalam game.
+
+
+    Peringatan Bahaya: Hindari rintangan seperti laser aktif
+    atau jalur panas (Hot Path) agar robot tidak hancur dan kembali ke checkpoint.
+
+
+    2.
+    Kamus Coding (Cheat Sheet)
+
+    Panuan singkat sintaks untuk menyelesaikan teka-teki
+    di terminal:
+
+
+    Boolean (true / false):
+
+
+    Digunakan untuk menyalakan atau
+    mematikan sistem keamanan/laser.
+
+
+    Catatan: Ketik menggunakan huruf kecil
+    semua (true atau false).
+
+
+    Angka Bulat (int):
+
+
+    Digunakan untuk mengatur
+    nilai energi, temperatur, atau level akses (contoh: 50, 80).
+
+
+    Kondisi Logika
+    (if / else):
+
+
+    Sistem akan mengecek apakah nilai yang kamu masukkan sudah
+    memenuhi batas minimal (threshold atau required power).
+
+
+    Perulangan (for
+    loop):
+
+
+    Digunakan untuk mengeksekusi perintah berulang (seperti elevasi
+    lift atau daya dorong platform) berdasarkan jumlah iterasi/angka yang kamu masukkan.
+
+
+    3.
+    Tentang Misi:
+
+    Sistem fasilitas lab dan jalur evakuasi mengalami error dan
+    terkunci. Tugasmu adalah memprogram ulang terminal-terminal di setiap sektor
+    agar robot bisa mengaktifkan Jet Exit dan keluar dengan selamat.'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: be6b5551d6ff83347b0e85a08ae7aa69, type: 2}
+  m_sharedMaterial: {fileID: 7548731101898636442, guid: be6b5551d6ff83347b0e85a08ae7aa69,
+    type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -6045,7 +6300,7 @@ MonoBehaviour:
   m_margin: {x: 0, y: 0, z: 0, w: -8.350922}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
-  m_hasFontAssetChanged: 0
+  m_hasFontAssetChanged: 1
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
 --- !u!222 &1721315768
@@ -6538,6 +6793,81 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 6b0c43a617451fb42ad67b9cf1166c93, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1 &1917898023
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1917898024}
+  - component: {fileID: 1917898026}
+  - component: {fileID: 1917898025}
+  m_Layer: 5
+  m_Name: Image
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &1917898024
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917898023}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 1493415101}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 390.34, y: 0}
+  m_SizeDelta: {x: 2700.6807, y: 1080}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1917898025
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917898023}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_Sprite: {fileID: 21300000, guid: fefd50fe31d18c84fb02c97421c50304, type: 3}
+  m_Type: 0
+  m_PreserveAspect: 0
+  m_FillCenter: 1
+  m_FillMethod: 4
+  m_FillAmount: 1
+  m_FillClockwise: 1
+  m_FillOrigin: 0
+  m_UseSpriteMesh: 0
+  m_PixelsPerUnitMultiplier: 1
+--- !u!222 &1917898026
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1917898023}
+  m_CullTransparentMesh: 1
 --- !u!1 &1936161401
 GameObject:
   m_ObjectHideFlags: 0

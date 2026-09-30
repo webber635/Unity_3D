@@ -77,4 +77,14 @@ public class VictoryManager : MonoBehaviour
         if (victoryPanel != null) victoryPanel.SetActive(false); 
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
+
+    // --- TAMBAHAN: Bersihkan referensi statis saat scene/objek dihancurkan ---
+private void OnDestroy()
+{
+    // Agar siap diisi ulang oleh objek manager baru di scene berikutnya
+    if (Instance == this)
+    {
+        Instance = null;
+    }
+}
 }

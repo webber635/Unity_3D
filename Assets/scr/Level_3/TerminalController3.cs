@@ -68,20 +68,44 @@ public class TerminalController3 : MonoBehaviour
     private void ToggleTerminal()
     {
         bool isActive = !terminalUI.activeSelf;
-        terminalUI.SetActive(isActive);
-        PlayerGridMovement.isTerminalActive = isActive;
 
         if (isActive)
         {
-            if (UISoundManager.Instance != null)
-                {
-                    UISoundManager.Instance.PlayTerminalOpen();
-                }            
+            // 1. ISI TEKS SEBELUM PANEL DIAKTIFKAN
+            // (Mencegah bug TextMeshPro yang mencari posisi kursor saat Canvas belum siap)
+            if (inputField != null) inputField.text = "20"; 
+            
+            if (feedbackText != null)
+            {
+                feedbackText.text = "> Checking power...\nERROR: Insufficient power for tile levitation.\nPower: 40\nRequired: 50";
+                feedbackText.color = Color.yellow;
+            }
 
-            // Set nilai default awal sesuai rancangan (20)
-            inputField.text = "20"; 
-            feedbackText.text = "> Checking power...\nERROR: Insufficient power for tile levitation.\nPower: 40\nRequired: 50";
-            feedbackText.color = Color.yellow;
+            // 2. BARU AKTIFKAN PANEL UI & KUNCI GERAKAN
+            if (terminalUI != null) terminalUI.SetActive(true);
+            PlayerGridMovement.isTerminalActive = true;
+
+            if (UISoundManager.Instance != null)
+            {
+                UISoundManager.Instance.PlayTerminalOpen();
+            }            
+        }
+        else
+        {
+            // JIKA MENU DITUTUP
+            if (terminalUI != null) terminalUI.SetActive(false);
+            PlayerGridMovement.isTerminalActive = false;
+        }
+    }
+
+    // --- TAMBAHAN BARU: Jeda 1 frame sebelum mengaktifkan kursor ---
+    private System.Collections.IEnumerator FocusInputField()
+    {
+        // Tunggu sampai layar selesai dirender di frame ini
+        yield return new WaitForEndOfFrame();
+        
+        if (inputField != null)
+        {
             inputField.ActivateInputField(); 
             inputField.caretPosition = inputField.text.Length; 
         }

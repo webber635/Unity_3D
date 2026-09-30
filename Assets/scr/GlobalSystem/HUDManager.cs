@@ -31,21 +31,49 @@ public class HUDManager : MonoBehaviour
 
     // --- UBAH: Tambahkan parameter targetTransform ---
     public void ShowHint(string message, Transform targetTransform = null)
+{
+    // --- TAMBAHAN: Cari ulang referensi UI jika hancur saat pindah level ---
+    if (worldCanvas == null)
     {
-        CancelInvoke(nameof(HideHint));
-        floatingHintText.text = message;
-        
-        // Jika ada target yang dikirim, pindahkan UI ke target tersebut
-        if (uiFollower != null && targetTransform != null)
+        // Pastikan nama objek Canvas di dalam tiap scene benar-benar "WorldCanvas"
+        worldCanvas = GameObject.Find("WorldCanvas"); 
+        if (worldCanvas != null)
         {
-            uiFollower.SetTarget(targetTransform);
+            uiFollower = worldCanvas.GetComponent<UIFollowTarget>();
+            floatingHintText = worldCanvas.GetComponentInChildren<TMP_Text>();
         }
-
-        worldCanvas.SetActive(true);
     }
 
-    public void HideHint()
+    // Batalkan eksekusi jika Canvas tidak ditemukan agar terhindar dari error
+    if (worldCanvas == null || floatingHintText == null) return;
+
+    CancelInvoke(nameof(HideHint));
+    floatingHintText.text = message;
+    
+    if (uiFollower != null && targetTransform != null)
+    {
+        uiFollower.SetTarget(targetTransform);
+    }
+
+    worldCanvas.SetActive(true);
+}
+
+public void HideHint()
+{
+    // --- TAMBAHAN: Proteksi null sebelum menonaktifkan ---
+    if (worldCanvas != null)
     {
         worldCanvas.SetActive(false);
     }
+}
+
+// --- TAMBAHAN: Bersihkan referensi statis saat scene/objek dihancurkan ---
+private void OnDestroy()
+{
+    // Agar siap diisi ulang oleh objek manager baru di scene berikutnya
+    if (Instance == this)
+    {
+        Instance = null;
+    }
+}
 }

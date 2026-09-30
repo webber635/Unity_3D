@@ -14,17 +14,24 @@ public class UISoundManager : MonoBehaviour
     [SerializeField] private AudioClip buttonClickSound;
 
     private void Awake()
+{
+    if (Instance == null)
     {
-        if (Instance == null)
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+
+        // --- TAMBAHAN: Amankan referensi AudioSource UI ---
+        if (audioSource == null)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
+            audioSource = GetComponent<AudioSource>();
+            if (audioSource == null) audioSource = gameObject.AddComponent<AudioSource>();
         }
     }
+    else
+    {
+        Destroy(gameObject);
+    }
+}
 
     public void PlayTerminalOpen()
     {

@@ -16,18 +16,26 @@ public class BGMManager : MonoBehaviour
     [SerializeField] private string mainMenuSceneName = "MainMenu"; // Sesuaikan dengan nama scene menu kamu
 
     private void Awake()
+{
+    if (Instance == null)
     {
-        if (Instance == null)
+        Instance = this;
+        DontDestroyOnLoad(gameObject);
+        
+        // --- TAMBAHAN: Pastikan referensi AudioSource selalu terbawa ---
+        if (bgmSource == null)
         {
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-        }
-        else
-        {
-            Destroy(gameObject);
-            return;
+            bgmSource = GetComponent<AudioSource>();
+            // Jika tidak ada di komponen yang sama, tambahkan otomatis
+            if (bgmSource == null) bgmSource = gameObject.AddComponent<AudioSource>();
         }
     }
+    else
+    {
+        Destroy(gameObject);
+        return;
+    }
+}
 
     private void OnEnable()
     {

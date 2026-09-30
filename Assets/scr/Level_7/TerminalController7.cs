@@ -262,6 +262,9 @@ public class TerminalController7 : MonoBehaviour
             // Cache pergerakan pemain (jangan dihapus)
             playerMovement = other.GetComponent<PlayerGridMovement>(); 
             
+            // --- TAMBAHAN: Simpan referensi transform player agar lift tahu siapa yang diangkat ---
+            playerTransform = other.transform; 
+            
             // --- UBAH: Kirim teks "Tekan [E]" beserta transform terminal ini ---
             if (HUDManager.Instance != null) HUDManager.Instance.ShowHint("Tekan [E]", transform);
         }

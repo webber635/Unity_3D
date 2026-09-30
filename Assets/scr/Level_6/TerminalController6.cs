@@ -73,7 +73,7 @@ public class TerminalController6 : MonoBehaviour
                 }
 
             inputField.text = "1"; 
-            feedbackText.text = "> Powering platform thrusters...\nIteration 1: Power 40\n\nPower: 40\nRequired: 80\nERROR: Insufficient power.";
+            feedbackText.text = " .";
             feedbackText.color = Color.yellow;
         }
     }
@@ -95,7 +95,7 @@ public class TerminalController6 : MonoBehaviour
 
         // 2. CEK LOGIKA (Simulasi FOR LOOP)
         int currentPower = basePower;
-        StringBuilder outputMsg = new StringBuilder("> Powering platform thrusters...\n");
+        StringBuilder outputMsg = new StringBuilder("> Repositioning the tiles...\n");
 
         for (int i = 0; i < iterations; i++)
         {
@@ -128,11 +128,11 @@ public class TerminalController6 : MonoBehaviour
             
             if (currentPower > requiredPower)
             {
-                outputMsg.AppendLine("ERROR: Power overload. Platform overshot.");
+                outputMsg.AppendLine("ERROR: over coordinate X. Platform overshot.");
             }
             else
             {
-                outputMsg.AppendLine("ERROR: Insufficient power. Platform failed to connect.");
+                outputMsg.AppendLine("ERROR: Platform failed to connect.");
             }
             
             // HANYA tampilkan pesan error di layar terminal tanpa menggerakkan pulau
